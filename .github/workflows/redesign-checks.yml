@@ -1,0 +1,44 @@
+name: Portfolio redesign browser checks
+on:
+  push:
+    branches: [design/interactive-portfolio-20261016]
+permissions:
+  contents: read
+jobs:
+  browser-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test tools
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Check JavaScript syntax
+        run: node --check script.js
+      - name: Start local preview
+        run: python3 -m http.server 8080 > /tmp/portfolio-http.log 2>&1 &
+      - name: Check responsive layout and interactions
+        run: node .qa/browser-checks.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: portfolio-redesign-review
+          path: .qa/results/
+          retention-days: 3
+      - name: Expose compact review screenshots
+        if: always()
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64
+          for name in ['desktop.webp','mobile.webp','dialog.webp']:
+            path=Path('.qa/results')/name
+            if path.exists():
+              print('SCREENSHOT_START:'+name)
+              print(base64.b64encode(path.read_bytes()).decode())
+              print('SCREENSHOT_END:'+name)
+          PY
