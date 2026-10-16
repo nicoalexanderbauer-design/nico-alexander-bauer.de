@@ -35,7 +35,7 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import base64
-          for name in ['desktop.jpg','mobile.jpg','dialog.jpg']:
+          for name in ['desktop.jpg','mobile.jpg','dialog.jpg','full-page.jpg']:
             path=Path('.qa/results')/name
             if path.exists():
               print('SCREENSHOT_START:'+name)

@@ -14,7 +14,7 @@ try{
   assert.equal(await page.locator('.card-meta').first().innerText(),'Seit 2026 · laufend');
   assert.match(await page.locator('.hero-description').innerText(),/Masterstudent der Pharmazeutischen Biotechnologie/);
   checks.push('Master seit 2026 enthalten; entferntes Projekt fehlt.');
-  await page.screenshot({path:'.qa/results/desktop.jpg',type:'jpeg',quality:72});
+  await page.screenshot({path:'.qa/results/desktop.jpg',type:'jpeg',animations:'disabled',quality:72});
   await page.getByRole('button',{name:'Prüfen',exact:true}).click();
   assert.equal(await page.locator('.hero-experience').getAttribute('data-scene'),'pruefen');
   assert.equal(await page.getByRole('button',{name:'Prüfen',exact:true}).getAttribute('aria-pressed'),'true');
@@ -23,13 +23,14 @@ try{
   await page.waitForTimeout(250);
   const frame2=await page.locator('canvas').evaluate(el=>el.toDataURL());
   assert.equal(frame1,frame2,'Pause must stop canvas rendering.');
+  await page.screenshot({path:'.qa/results/full-page.jpg',type:'jpeg',animations:'disabled',quality:65,fullPage:true});
   await page.getByRole('button',{name:'Animationen abspielen',exact:true}).first().click();
   checks.push('Startszene: Auswahl und tatsächliche Animationspause funktionieren.');
   const summary=page.locator('[data-dialog="study"] summary');
   await summary.click();
   assert.equal(await page.locator('dialog[open]').count(),1);
   assert.match(await page.locator('#dialog-title').innerText(),/Wissenschaft/);
-  await page.screenshot({path:'.qa/results/dialog.jpg',type:'jpeg',quality:72});
+  await page.screenshot({path:'.qa/results/dialog.jpg',type:'jpeg',animations:'disabled',quality:72});
   for(let i=0;i<5;i++)await page.keyboard.press('Tab');
   assert.equal(await page.evaluate(()=>document.querySelector('dialog').contains(document.activeElement)),true);
   await page.keyboard.press('Escape');
@@ -54,7 +55,7 @@ try{
   }
   await page.setViewportSize({width:390,height:844});
   await page.goto('http://127.0.0.1:8080',{waitUntil:'networkidle'});
-  await page.screenshot({path:'.qa/results/mobile.jpg',type:'jpeg',quality:72});
+  await page.screenshot({path:'.qa/results/mobile.jpg',type:'jpeg',animations:'disabled',quality:72});
   await page.getByRole('button',{name:'Menü'}).click();
   assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'),'true');
   await page.locator('#navigation').getByRole('link',{name:'Mein Weg'}).click();
@@ -86,7 +87,7 @@ try{
   await writeFile('.qa/results/report.json',JSON.stringify({status:'passed',checks},null,2));
   console.log(JSON.stringify({status:'passed',checks},null,2));
 }catch(e){
-  await page.screenshot({path:'.qa/results/failure.jpg',type:'jpeg',quality:75});
+  await page.screenshot({path:'.qa/results/failure.jpg',type:'jpeg',animations:'disabled',quality:75});
   await writeFile('.qa/results/report.json',JSON.stringify({status:'failed',error:e.stack,checks,errors},null,2));
   console.error(e);process.exitCode=1;
 }finally{await browser.close();}
